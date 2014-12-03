@@ -1,6 +1,7 @@
 package edu.elon.cs.camera;
 
 import android.app.Activity;
+import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -17,12 +18,17 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import com.googlecode.tesseract.android.TessBaseAPI;
+
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.widget.Button;
 import android.widget.Toast;
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.hardware.Camera;
 import android.hardware.Camera.PictureCallback;
 import android.os.Bundle;
@@ -36,8 +42,12 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
 	private boolean previewRunning;
 	final Context context = this;
 	public static Camera camera = null;
+	
+	private static String path;
 
 	private Button capture;
+	
+	private static Bitmap bitmap;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -115,6 +125,45 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
 			} catch (IOException e) {
 				System.out.println("Error accessing file: " + e.getMessage());
 			}
+			BitmapFactory.Options options = new BitmapFactory.Options();
+			options.inSampleSize = 4;
+			bitmap = BitmapFactory.decodeFile(path, options);
+			System.out.println(bitmap.getHeight());
+			try {
+				ExifInterface exif = new ExifInterface(path);
+				int exifOrientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+				int rotate = 0;
+				switch(exifOrientation){
+				case ExifInterface.ORIENTATION_ROTATE_90:
+					rotate = 90;
+					break;
+				case ExifInterface.ORIENTATION_ROTATE_180:
+					rotate = 180;
+					break;
+				case ExifInterface.ORIENTATION_ROTATE_270:
+					rotate = 270;
+					break;
+				}
+				if(rotate != 0){
+					int w = bitmap.getWidth();
+					int h = bitmap.getHeight();
+					
+					Matrix mtx = new Matrix();
+					mtx.preRotate(rotate);
+					
+					bitmap = Bitmap.createBitmap(bitmap, 0, 0, w, h, mtx,false);
+				}
+				bitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true);
+			} catch (IOException e) {
+				Log.d("OCR", "Could not find path OR Image roatation broke");
+			}
+			TessBaseAPI baseApi = new TessBaseAPI();
+			baseApi.init("/storage/emulated/0/tesseract-ocr/tessdata/eng.traineddata","eng");
+			baseApi.setImage(bitmap);
+			String recognizedString = baseApi.getUTF8Text();
+			Log.d("WORD", "Word from Image: " + recognizedString);
+			Toast toast = Toast.makeText(context, recognizedString, Toast.LENGTH_LONG);
+			toast.show();
 			camera.stopPreview();
 			camera.startPreview();
 		}
@@ -152,11 +201,14 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
 		if (type == MEDIA_TYPE_IMAGE) {
 			System.out
 					.println("IMAGE PATH:------>" + mediaStorageDir.getPath());
+			path = mediaStorageDir.getPath() + File.separator
+					+ "IMG_" + timeStamp + ".jpg";
 			mediaFile = new File(mediaStorageDir.getPath() + File.separator
 					+ "IMG_" + timeStamp + ".jpg");
 		} else {
 			return null;
 		}
+
 		return mediaFile;
 	}
 

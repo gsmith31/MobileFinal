@@ -6,4 +6,10 @@
 <fullyQualifiedTypeName name="android.graphics.Bitmap.Config"/>
 <fullyQualifiedTypeName name="android.widget.Toast"/>
 <fullyQualifiedTypeName name="android.util.Log"/>
+<fullyQualifiedTypeName name="android.widget.ImageButton"/>
+<fullyQualifiedTypeName name="android.app.Dialog"/>
+<fullyQualifiedTypeName name="edu.elon.cs.camera.R.layout"/>
+<fullyQualifiedTypeName name="edu.elon.cs.camera.R.string"/>
+<fullyQualifiedTypeName name="android.widget.TextView"/>
+<fullyQualifiedTypeName name="edu.elon.cs.camera.R.id"/>
 </qualifiedTypeNameHistroy>

@@ -1,7 +1,10 @@
 package edu.elon.cs.camera;
 
 import android.util.Log;
-
+/**
+ * Copyright George W. Smith 2014
+ * AlphaIT v 1.0
+ */
 public class ProcessResult {
 	
 	private String result;

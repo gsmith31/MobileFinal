@@ -1,6 +1,10 @@
 package edu.elon.cs.camera;
-
+/**
+ * Copyright George W. Smith 2014
+ * AlphaIT v 1.0
+ */
 import android.app.Activity;
+import android.app.Dialog;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Bundle;
@@ -23,6 +27,8 @@ import com.googlecode.tesseract.android.TessBaseAPI;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.app.Activity;
 import android.content.Context;
@@ -44,10 +50,10 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
 	public static Camera camera = null;
 	private SearchWolfram search;
 	private static String path;
+	private ImageButton capture;
+	private Dialog currentDialog;
+	private ImageButton info;
 
-	private Button capture;
-
-	private static Bitmap bitmap;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -58,7 +64,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
 		camHolder = SurView.getHolder();
 		camHolder.addCallback(this);
 
-		capture = (Button) findViewById(R.id.capture);
+		capture = (ImageButton) findViewById(R.id.capture);
 		capture.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -66,7 +72,29 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
 			}
 
 		});
+		info = (ImageButton) findViewById(R.id.infoButton);
+		info.setOnClickListener(new OnClickListener(){
+
+			@Override
+			public void onClick(View v) {
+				showInformationDialog();
+				
+			}
+			
+		});
 		search = null;
+	}
+	
+	public boolean showInformationDialog(){
+		currentDialog = new Dialog(this);
+		currentDialog.setContentView(R.layout.information_dialog);
+		currentDialog.setTitle(R.string.appInfo);
+		TextView textInfo = (TextView) currentDialog.findViewById(R.id.infoView);
+		textInfo.setText(getMessageInfo());
+		TextView textHow = (TextView) currentDialog.findViewById(R.id.howTo);
+		textHow.setText(getMessageHow());
+		currentDialog.show();
+		return true;
 	}
 
 	@Override
@@ -126,81 +154,37 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
 			} catch (IOException e) {
 				System.out.println("Error accessing file: " + e.getMessage());
 			}
-			BitmapFactory.Options options = new BitmapFactory.Options();
-			options.inSampleSize = 4;
-			bitmap = BitmapFactory.decodeFile(path, options);
-			// System.out.println(bitmap.getHeight());
-			try {
-				ExifInterface exif = new ExifInterface(path);
-				int exifOrientation = exif.getAttributeInt(
-						ExifInterface.TAG_ORIENTATION,
-						ExifInterface.ORIENTATION_NORMAL);
-				int rotate = 0;
-				switch (exifOrientation) {
-				case ExifInterface.ORIENTATION_ROTATE_90:
-					rotate = 90;
-					break;
-				case ExifInterface.ORIENTATION_ROTATE_180:
-					rotate = 180;
-					break;
-				case ExifInterface.ORIENTATION_ROTATE_270:
-					rotate = 270;
-					break;
-				}
-				if (rotate != 0) {
-					int w = bitmap.getWidth();
-					int h = bitmap.getHeight();
-
-					Matrix mtx = new Matrix();
-					mtx.preRotate(rotate);
-
-					bitmap = Bitmap
-							.createBitmap(bitmap, 0, 0, w, h, mtx, false);
-				}
-				bitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true);
-			} catch (IOException e) {
-				Log.d("OCR", "Could not find path OR Image roatation broke");
-			}
+			Bitmap bitmap = configureBitmap();
 			TessBaseAPI baseApi = new TessBaseAPI();
 			baseApi.init("/storage/emulated/0", "eng");
 			baseApi.setImage(bitmap);
 			String string = baseApi.getUTF8Text();
 			ProcessResult process = new ProcessResult(string);
 			string = process.process();
-			//string = string.substring(string.indexOf('[') + 1, string.lastIndexOf(']'));
 			Log.d("WORD", "Word from Image: " + string);
 			searchWolfram(string);
+			boolean deleted = pictureFile.delete();
 			camera.stopPreview();
 			camera.startPreview();
 		}
 	};
 
-	/** Create a file Uri for saving an image or video */
 	private static File getOutputMediaFileUri(int type) {
 		return getOutputMediaFile(type);
 	}
 
-	/** Create a File for saving an image or video */
+	
 	private static File getOutputMediaFile(int type) {
-		// To be safe, you should check that the SDCard is mounted
-		// using Environment.getExternalStorageState() before doing this.
-
 		File mediaStorageDir = new File(
 				Environment
 						.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
 				"MyCameraApp");
-		// This location works best if you want the created images to be shared
-		// between applications and persist after your app has been uninstalled.
-
-		// Create the storage directory if it does not exist
 		if (!mediaStorageDir.exists()) {
 			if (!mediaStorageDir.mkdirs()) {
 				Log.d("MyCameraApp", "failed to create directory");
 				return null;
 			}
 		}
-
-		// Create a media file name
 		String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss")
 				.format(new Date());
 		File mediaFile;
@@ -234,5 +218,62 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
 		Toast toast = Toast.makeText(context, result, Toast.LENGTH_LONG);
 		toast.show();
 	}
+	
+	
+	public Bitmap configureBitmap(){
+		BitmapFactory.Options options = new BitmapFactory.Options();
+		options.inSampleSize = 4;
+		Bitmap bitmap = BitmapFactory.decodeFile(path, options);
+		// System.out.println(bitmap.getHeight());
+		try {
+			ExifInterface exif = new ExifInterface(path);
+			int exifOrientation = exif.getAttributeInt(
+					ExifInterface.TAG_ORIENTATION,
+					ExifInterface.ORIENTATION_NORMAL);
+			int rotate = 0;
+			switch (exifOrientation) {
+			case ExifInterface.ORIENTATION_ROTATE_90:
+				rotate = 90;
+				break;
+			case ExifInterface.ORIENTATION_ROTATE_180:
+				rotate = 180;
+				break;
+			case ExifInterface.ORIENTATION_ROTATE_270:
+				rotate = 270;
+				break;
+			}
+			if (rotate != 0) {
+				int w = bitmap.getWidth();
+				int h = bitmap.getHeight();
+
+				Matrix mtx = new Matrix();
+				mtx.preRotate(rotate);
+
+				bitmap = Bitmap
+						.createBitmap(bitmap, 0, 0, w, h, mtx, false);
+			}
+			return bitmap.copy(Bitmap.Config.ARGB_8888, true);
+		} catch (IOException e) {
+			Log.d("OCR", "Could not find path OR Image roatation broke");
+		}
+		return null;
+	}
+	
+	public String getMessageInfo(){
+		String message = "AlphaIT utilizes the Wolfram|Alpha API so that "
+				+ "it can connect and recieve information based on queries. "
+				+ "AlphaIT also uses an API that is a fork of Tesseract Android "
+				+ "Tools by Robert Theis called Tess Two.";
+		return message;
+	}
+	
+	public String getMessageHow(){
+		String message = "How to use:\n"
+				+ "Place the text or equation you wish to search in the center of the screen. "
+				+ "Then hit the camera icon and wait you receive the anser. If the image processing"
+				+ "software does no interpret the image correctly then you will be prompted to try again.";
+		return message;
+	}
+	
 
 }

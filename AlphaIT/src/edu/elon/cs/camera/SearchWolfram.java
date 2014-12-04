@@ -10,7 +10,10 @@ import com.wolfram.alpha.WAPod;
 import com.wolfram.alpha.WAQuery;
 import com.wolfram.alpha.WAQueryResult;
 import com.wolfram.alpha.WASubpod;
-
+/**
+ * Copyright George W. Smith 2014
+ * AlphaIT v 1.0
+ */
 public class SearchWolfram {
 	
 	private String input;

@@ -11,14 +11,20 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true" />
 
-    <Button
+    <ImageButton
         android:id="@+id/capture"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:background="@drawable/camera"
+        android:layout_width="75dip"
+        android:layout_height="75dip"
         android:layout_alignParentRight="true"
-        android:layout_centerVertical="true"
-        android:text="@string/solve" />
+        android:layout_centerVertical="true"/>
 
-
-
+    <ImageButton
+        android:id="@+id/infoButton"
+        android:layout_width="30dip"
+        android:layout_height="30dip"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:background="@drawable/info" />
+    
 </RelativeLayout>

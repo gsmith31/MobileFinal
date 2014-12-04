@@ -1,0 +1,8 @@
+package snippet;
+
+public class Snippet {
+	public static void main(String[] args) {
+		/Users/TheMole/android-sdks/platforms/android-19/android.jar
+	}
+}
+

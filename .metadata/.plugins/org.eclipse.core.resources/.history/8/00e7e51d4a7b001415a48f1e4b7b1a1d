@@ -1,0 +1,85 @@
+package edu.elon.cs.camera;
+
+import android.os.AsyncTask;
+
+import com.wolfram.alpha.WAEngine;
+import com.wolfram.alpha.WAException;
+import com.wolfram.alpha.WAPlainText;
+import com.wolfram.alpha.WAPod;
+import com.wolfram.alpha.WAQuery;
+import com.wolfram.alpha.WAQueryResult;
+import com.wolfram.alpha.WASubpod;
+
+public class SearchWolfram {
+	
+	private String input;
+	private String result;
+	private final String APP_ID = "AV867G-LP7GW98GGL";
+	
+	public SearchWolfram(){
+		input = "";
+		result = null;
+	}
+	
+	public void executeQuery(){
+		new SearchWolframAlpha().execute();
+	}
+		
+	public void setInput(String input){
+		this.input = input;
+	}
+	
+	public String getResult(){
+		return result;
+	}
+	
+	private class SearchWolframAlpha extends AsyncTask<Void, Void, String> {
+
+		@Override
+		protected String doInBackground(Void... params) {
+			result = null;
+
+			WAEngine engine = new WAEngine();
+			engine.setAppID(APP_ID);
+			engine.addFormat("plaintext");
+
+			WAQuery query = engine.createQuery();
+			query.setInput(input);
+
+			try {
+				System.out.println(engine.toURL(query));
+				WAQueryResult queryResult = engine.performQuery(query);
+				if (queryResult.isError()) {
+					System.out.println(queryResult.getErrorMessage());
+				} else if (!queryResult.isSuccess()) {
+					System.out
+							.println("Query was not understood; no results available.");
+				} else {
+					for (WAPod pod : queryResult.getPods()) {
+						if (!pod.isError()) {
+							System.out.println(pod.getTitle());
+							if (pod.getTitle().equalsIgnoreCase("result")) {
+								for (WASubpod subpod : pod.getSubpods()) {
+									for (Object element : subpod.getContents()) {
+										if (element instanceof WAPlainText) {
+											result = ((WAPlainText) element)
+													.getText();
+											System.out
+													.println(((WAPlainText) element)
+															.getText());
+											System.out.println("");
+										}
+									}
+								}
+							}
+							System.out.println("");
+						}
+					}
+				}
+			} catch (WAException e) {
+				e.printStackTrace();
+			}
+			return null;
+		}
+	}
+}

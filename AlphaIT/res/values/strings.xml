@@ -2,5 +2,7 @@
 <resources>
 
     <string name="app_name">AlphaIT</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="solve">Solve</string>
 
 </resources>

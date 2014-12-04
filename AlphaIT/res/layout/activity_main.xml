@@ -1,35 +1,24 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/lib/com.google.ads"
+    android:id="@+id/camview"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:gravity="center"
-    android:orientation="vertical"
-    tools:context="${relativePackage}.${activityClass}" >
+    android:layout_height="match_parent" >
 
-    <EditText
-        android:id="@+id/input"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:ems="10" 
-        android:gravity="center">
-    </EditText>
+    <SurfaceView
+        android:id="@+id/sview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true" />
 
     <Button
-        android:id="@+id/search"
+        android:id="@+id/capture"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="100sp"
-        android:text="Search" />
-
-    <TextView
-        android:id="@+id/result"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
+        android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
-        android:layout_weight="0.07"
-        android:gravity="center" />
+        android:text="@string/solve" />
 
-</LinearLayout>
+
+
+</RelativeLayout>

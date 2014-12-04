@@ -1,0 +1,48 @@
+package edu.elon.cs.camera;
+
+import android.util.Log;
+
+public class ProcessResult {
+	
+	private String result;
+	
+	public ProcessResult(String result){
+		this.result = result;
+	}
+	
+	public String process(){
+		if(isSqrt()){
+			Log.d("SQRT", "Is sqrt");
+			int index = result.indexOf("s");
+			if(index != -1){
+				result = result.substring(index, result.lastIndexOf(')') + 1);
+				return result;
+			}
+		}
+		return result;
+		
+	}
+	
+	public boolean isEquation(){
+		int nums = 0;
+		for(char c: result.toCharArray()){
+			if(c != '1' && c != '2' && c != '3' && c != '4' && c != '5' && c != '6' && c != '7' && c != '8' && c != '9' && c != '0') {
+				nums++;
+			}
+		}
+		
+		if(nums >= result.length() ){
+			return true;
+		}
+		return false;
+	}
+	
+	public boolean isSqrt(){
+		if(result.contains("sqrt")){
+			return true;
+		}
+		return false;
+	}
+	
+	
+}
